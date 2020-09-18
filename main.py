@@ -64,10 +64,18 @@ def post_comic(owner_id, media_id, token, comment):
     response.raise_for_status()
 
 
+def get_last_comic_number():
+    url = "https://xkcd.com/info.0.json"
+    response = requests.get(url)
+    response.raise_for_status()
+    last_comic_number = response.json()["num"]
+    return last_comic_number
+
+
 def main():
     load_dotenv()
     token = os.getenv("ACCESS_TOKEN")
-    last_comic_number = 2359
+    last_comic_number = get_last_comic_number()
     url = "http://xkcd.com/{}/info.0.json".format(
         random.randint(1, last_comic_number))
     response = requests.get(url)
