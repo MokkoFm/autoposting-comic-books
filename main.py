@@ -13,6 +13,7 @@ def get_url_to_upload(token):
         "v": "5.124"
     }
     response = requests.get(url, params=payload)
+    response.raise_for_status()
     url_to_upload = response.json()["response"]["upload_url"]
     return url_to_upload
 
@@ -40,7 +41,27 @@ def save_comic(image_on_server, token):
     }
 
     response = requests.get(url_to_save, params=payload)
-    print(response.url)
+    response.raise_for_status()
+    saved_image = response.json()
+    for image in saved_image["response"]:
+        owner_id = image["owner_id"]
+        media_id = image["id"]
+
+    return owner_id, media_id
+
+
+def post_comic(owner_id, media_id, token, comment):
+    url_to_post = "https://api.vk.com/method/wall.post"
+    payload = {
+        "access_token": token,
+        "v": "5.124",
+        "owner_id": "-198809484",
+        "message": comment,
+        "from_group": "1",
+        "attachments": "photo{}_{}".format(owner_id, media_id)
+    }
+    response = requests.get(url_to_post, params=payload)
+    response.raise_for_status()
 
 
 def main():
@@ -50,6 +71,7 @@ def main():
     response.raise_for_status()
     comic = response.json()
     image = urllib.request.urlopen(comic["img"])
+    comment = comic["alt"]
 
     with open("xkcd.png", "wb") as file:
         content = image.read()
@@ -57,7 +79,8 @@ def main():
 
     url_to_upload = get_url_to_upload(token)
     image_on_server = upload_comic_to_server(url_to_upload)
-    save_comic(image_on_server, token)
+    owner_id, media_id = save_comic(image_on_server, token)
+    post_comic(owner_id, media_id, token, comment)
 
 
 if __name__ == "__main__":
