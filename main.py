@@ -8,7 +8,7 @@ def main():
     response.raise_for_status()
     comic = response.json()
     image = urllib.request.urlopen(comic["img"])
-
+    print(comic["alt"])
     with open("xkcd.png", "wb") as file:
         content = image.read()
         file.write(content)
