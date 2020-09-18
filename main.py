@@ -1,8 +1,8 @@
 import requests
 import urllib.request
 import os
+import random
 from dotenv import load_dotenv
-load_dotenv()
 
 
 def get_url_to_upload(token):
@@ -65,8 +65,11 @@ def post_comic(owner_id, media_id, token, comment):
 
 
 def main():
+    load_dotenv()
     token = os.getenv("ACCESS_TOKEN")
-    url = "https://xkcd.com/info.0.json"
+    last_comic_number = 2359
+    url = "http://xkcd.com/{}/info.0.json".format(
+        random.randint(1, last_comic_number))
     response = requests.get(url)
     response.raise_for_status()
     comic = response.json()
