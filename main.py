@@ -75,8 +75,9 @@ def main():
     comic = response.json()
     image = urllib.request.urlopen(comic["img"])
     comment = comic["alt"]
+    filename = "xkcd.png"
 
-    with open("xkcd.png", "wb") as file:
+    with open(filename, "wb") as file:
         content = image.read()
         file.write(content)
 
@@ -84,6 +85,7 @@ def main():
     image_on_server = upload_comic_to_server(url_to_upload)
     owner_id, media_id = save_comic(image_on_server, token)
     post_comic(owner_id, media_id, token, comment)
+    os.remove(filename)
 
 
 if __name__ == "__main__":
