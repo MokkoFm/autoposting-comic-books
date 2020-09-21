@@ -54,10 +54,9 @@ def save_comic(image_server, image_hash, photo, token, group_id):
     }
 
     response = get_response(url, payload)
-    saved_image = response.json()
-    for image in saved_image["response"]:
-        owner_id = image["owner_id"]
-        media_id = image["id"]
+    saved_image = response.json()["response"][0]
+    owner_id = saved_image["owner_id"]
+    media_id = saved_image["id"]
 
     return owner_id, media_id
 
@@ -90,11 +89,7 @@ def main():
     last_comic_number = get_last_comic_number()
     url = "http://xkcd.com/{}/info.0.json".format(
         random.randint(1, last_comic_number))
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-    except requests.HTTPError:
-        sys.stderr.write("Error with URL\n")
+    response = get_response(url, payload={})
     comic = response.json()
     image = urllib.request.urlopen(comic["img"])
     comment = comic["alt"]
