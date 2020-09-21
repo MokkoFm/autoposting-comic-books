@@ -91,14 +91,14 @@ def main():
         random.randint(1, last_comic_number))
     response = get_response(url, payload={})
     comic = response.json()
-    image = urllib.request.urlopen(comic["img"])
+    image_url = comic["img"]
+    response = get_response(image_url, payload={})
     comment = comic["alt"]
     filename = "xkcd.png"
 
     try:
         with open(filename, "wb") as file:
-            content = image.read()
-            file.write(content)
+            file.write(response.content)
 
         url_to_upload = get_url_to_upload(token, group_id)
         image_server, image_hash, photo = upload_comic_to_server(url_to_upload)
