@@ -16,11 +16,11 @@ def get_response(url, payload):
     return response
 
 
-def get_url_to_upload(token):
+def get_url_to_upload(token, group_id):
     url = "https://api.vk.com/method/photos.getWallUploadServer"
     payload = {
         "access_token": token,
-        "group_id": "198809484",
+        "group_id": group_id,
         "v": "5.124"
     }
     response = get_response(url, payload)
@@ -39,14 +39,14 @@ def upload_comic_to_server(url_to_upload):
         return image_on_server
 
 
-def save_comic(image_on_server, token):
+def save_comic(image_on_server, token, group_id):
     url = "https://api.vk.com/method/photos.saveWallPhoto"
     payload = {
         "access_token": token,
         "server": image_on_server["server"],
         "hash": image_on_server["hash"],
         "photo": image_on_server["photo"],
-        "group_id": "198809484",
+        "group_id": group_id,
         "v": "5.124"
     }
 
@@ -59,12 +59,12 @@ def save_comic(image_on_server, token):
     return owner_id, media_id
 
 
-def post_comic(owner_id, media_id, token, comment):
+def post_comic(owner_id, media_id, token, comment, group_id):
     url = "https://api.vk.com/method/wall.post"
     payload = {
         "access_token": token,
         "v": "5.124",
-        "owner_id": "-198809484",
+        "owner_id": "-{}".format(group_id),
         "message": comment,
         "from_group": "1",
         "attachments": "photo{}_{}".format(owner_id, media_id)
@@ -83,6 +83,7 @@ def get_last_comic_number():
 def main():
     load_dotenv()
     token = os.getenv("ACCESS_TOKEN")
+    group_id = "198809484"
     last_comic_number = get_last_comic_number()
     url = "http://xkcd.com/{}/info.0.json".format(
         random.randint(1, last_comic_number))
@@ -96,15 +97,18 @@ def main():
     comment = comic["alt"]
     filename = "xkcd.png"
 
-    with open(filename, "wb") as file:
-        content = image.read()
-        file.write(content)
+    try:
+        with open(filename, "wb") as file:
+            content = image.read()
+            file.write(content)
 
-    url_to_upload = get_url_to_upload(token)
-    image_on_server = upload_comic_to_server(url_to_upload)
-    owner_id, media_id = save_comic(image_on_server, token)
-    post_comic(owner_id, media_id, token, comment)
-    os.remove(filename)
+        url_to_upload = get_url_to_upload(token, group_id)
+        image_on_server = upload_comic_to_server(url_to_upload)
+        owner_id, media_id = save_comic(image_on_server, token, group_id)
+        post_comic(owner_id, media_id, token, comment, group_id)
+
+    finally:
+        os.remove(filename)
 
 
 if __name__ == "__main__":
