@@ -1,5 +1,4 @@
 import requests
-import urllib.request
 import os
 import random
 from dotenv import load_dotenv
