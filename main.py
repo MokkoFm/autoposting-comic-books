@@ -75,8 +75,7 @@ def post_comic(owner_id, media_id, token, comment, group_id):
 
 def get_last_comic_number():
     url = "https://xkcd.com/info.0.json"
-    response = requests.get(url)
-    response.raise_for_status()
+    response = get_response(url, payload={})
     last_comic_number = response.json()["num"]
     return last_comic_number
 
